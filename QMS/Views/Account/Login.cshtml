@@ -1,0 +1,50 @@
+﻿@model QMS.Models.LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Account.cshtml";
+   
+}
+
+<div class="content d-flex justify-content-center align-items-center">
+    <!-- Login card -->
+    <form class="login-form" asp-controller="Account" asp-action="Login" method="post">
+        <div class="card mb-0">
+            <div class="text-center bg-white p-3">
+                <a>
+                    <img id="imglogo" name="imglogo" src="images/wipro-logo.png" class="img-fluid shadow-0" alt="" />
+                </a>
+            </div>
+            <div class="text-center bg-white">
+                <h5 style="font-weight:bold">QMS Login</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group form-group-feedback form-group-feedback-left">
+                    <input asp-for="Username" class="form-control" placeholder="Username" required />
+                    <div class="form-control-feedback">
+                        <i class="icon-user text-muted"></i>
+                    </div>
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group form-group-feedback form-group-feedback-left">
+                    <input asp-for="Password" class="form-control" placeholder="Password" type="password" required />
+                    <div class="form-control-feedback">
+                        <i class="icon-lock2 text-muted"></i>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <span asp-validation-for="WrongCredentials" class="text-danger"></span>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">Sign in <i class="icon-circle-right2 ml-2"></i></button>
+                </div>
+
+                <div class="form-group d-flex align-items-center">
+                    <a href="#" class="ml-auto">Forgot password?</a>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- /login card -->
+</div>
+
