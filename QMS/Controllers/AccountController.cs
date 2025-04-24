@@ -1,37 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using QMS.Models;
+﻿// AccountController.cs
+using Microsoft.AspNetcore.Mvc;
+//using QMS.Models;
 
-namespace QMS.Controllers
+public class AccountController : Controller
 {
-    public class AccountController : Controller
+    [HttpGet]
+    public IActionResult Login()
     {
-        // GET: Account/Login
-        public IActionResult Login()
-        {
-            return View();
-        }
+        return View();
+    }
 
-        // POST: Account/Login
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Login(LoginModel model)
+    [HttpPost]
+    public IActionResult Login()
+    {
+        if (ModelState.IsValid)
         {
-            if (ModelState.IsValid)
+            if () // Dummy auth
             {
-                // Simulate authentication logic (this should query your database in real-world cases)
-                if (model.Username == "admin" && model.Password == "password123")  // Example hardcoded login
-                {
-                    // Successful login, redirect to the dashboard or home page
-                    return RedirectToAction("Index", "Dashboard");
-                }
-                else
-                {
-                    // Invalid credentials
-                    ModelState.AddModelError(string.Empty, "Invalid username or password.");
-                }
+                return RedirectToAction("Index", "Home");
             }
-
-            return View(model);  // Return the view with the validation error
+            else
+            {
+                ModelState.AddModelError("WrongCredentials", "Invalid username or password.");
+            }
         }
+
+        return View();
     }
 }

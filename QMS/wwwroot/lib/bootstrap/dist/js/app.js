@@ -554,7 +554,7 @@ var App = function () {
         },
 
         // Initialize core
-        initCore: function() {
+        initcore: function() {
             App.initSidebars();
             App.initNavigations();
             App.initComponents();
@@ -572,7 +572,7 @@ var App = function () {
 // When content is loaded
 document.addEventListener('DOMContentLoaded', function() {
     App.initBeforeLoad();
-    App.initCore();
+    App.initcore();
 });
 
 // When page is fully loaded

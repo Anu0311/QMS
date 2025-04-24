@@ -10,25 +10,40 @@
 // Setup module
 // ------------------------------
 
-var App = function () {
+const App = function () {
 
 
-    //
-    // Setup module components
-    //
-
-    // Transitions
+    // Utils
     // -------------------------
 
+    //
+    // Transitions
+    //
+
     // Disable all transitions
-    var _transitionsDisabled = function () {
-        $('body').addClass('sidebar-xs');
+    const transitionsDisabled = function() {
         $('body').addClass('no-transitions');
     };
 
     // Enable all transitions
-    var _transitionsEnabled = function() {
+    const transitionsEnabled = function() {
         $('body').removeClass('no-transitions');
+    };
+
+
+    //
+    // Detect OS to apply custom scrollbars
+    //
+
+    // Custom scrollbar style is controlled by CSS. This function is needed to keep default
+    // scrollbars on MacOS and avoid usage of extra JS libraries
+    const detectOS = function() {
+        const platform = window.navigator.platform,
+              windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+              customScrollbarsClass = 'custom-scrollbars';
+
+        // Add class if OS is windows
+        windowsPlatforms.indexOf(platform) != -1 && $('body').addClass(customScrollbarsClass);
     };
 
 
@@ -40,202 +55,132 @@ var App = function () {
     //
 
     // Resize main sidebar
-    var _sidebarMainResize = function() {
+    const sidebarMainResize = function() {
+
+        // Elements
+        const sidebarMainElement = $('.sidebar-main'),
+              sidebarMainToggler = $('.sidebar-main-resize'),
+              sidebarMobileTogglerClass = 'sidebar-mobile-expanded',
+              resizeClass = 'sidebar-main-resized',
+              navSubmenuClass = 'nav-group-sub',
+              navSubmenuReversedClass = 'nav-group-sub-reversed',
+              submenuToggleClass = 'nav-group-sub-visible',
+              submenuElement = sidebarMainElement.find('.nav-sidebar > .nav-item-submenu');
 
         // Flip 2nd level if menu overflows
         // bottom edge of browser window
-        var revertBottomMenus = function() {
-            $('.sidebar-main').find('.nav-sidebar').children('.nav-item-submenu').hover(function() {
-                var totalHeight = 0,
-                    $this = $(this),
-                    navSubmenuClass = 'nav-group-sub',
-                    navSubmenuReversedClass = 'nav-item-submenu-reversed';
+        const flipSubmenu = function() {
 
-                totalHeight += $this.find('.' + navSubmenuClass).filter(':visible').outerHeight();
-                if($this.children('.' + navSubmenuClass).length) {
-                    if(($this.children('.' + navSubmenuClass).offset().top + $this.find('.' + navSubmenuClass).filter(':visible').outerHeight()) > document.body.clientHeight) {
-                        $this.addClass(navSubmenuReversedClass)
-                    }
-                    else {
-                        $this.removeClass(navSubmenuReversedClass)
-                    }
+            // When mouse enters
+            submenuElement.on('mouseenter', function() {
+                $(this).addClass(submenuToggleClass);
+                if(($(this).children('.' + navSubmenuClass).offset().top + $(this).find('.' + navSubmenuClass).filter(':visible').outerHeight()) > document.body.clientHeight) {
+                    $(this).children('.' + navSubmenuClass).addClass(navSubmenuReversedClass)
                 }
+            });
+
+            // When mouse leaves
+            submenuElement.on('mouseleave', function() {
+                $(this).removeClass(submenuToggleClass);
+                $(this).children('.' + navSubmenuClass).removeClass(navSubmenuReversedClass);
             });
         }
 
-        // If sidebar is resized by default
-        if($('body').hasClass('sidebar-xs')) {
-            revertBottomMenus();
-        }
-
-        // Toggle min sidebar class
-        $('.sidebar-main-toggle').on('click', function (e) {
+        // Toggle classes on click
+        sidebarMainToggler.on('click', function(e) {
             e.preventDefault();
 
-            $('body').toggleClass('sidebar-xs').removeClass('sidebar-mobile-main');
-            revertBottomMenus();
+            // Toggle class on sidebar
+            if(!sidebarMainElement.hasClass(resizeClass)) {
+                sidebarMainElement.addClass(resizeClass);
+                sidebarMainElement.removeClass(sidebarMobileTogglerClass);
+                flipSubmenu();
+            }
+            else {
+                sidebarMainElement.removeClass(resizeClass + ' ' + sidebarMobileTogglerClass);
+                submenuElement.off('mouseenter mouseleave');
+            }
         });
+
+        // If main sidebar is resized by default
+        if(sidebarMainElement.hasClass(resizeClass)) {
+            flipSubmenu();
+        }
     };
 
     // Toggle main sidebar
-    var _sidebarMainToggle = function() {
-        $(document).on('click', '.sidebar-main-hide', function (e) {
+    const sidebarMainToggle = function() {
+
+        // Elements
+        const sidebarMainElement = $('.sidebar-main'),
+              sidebarMainRestElements = $('.sidebar:not(.sidebar-main)'),
+              sidebarMainDesktopToggler = $('.sidebar-main-toggle'),
+              sidebarMainMobileToggler = $('.sidebar-mobile-main-toggle'),
+              sidebarCollapsedClass = 'sidebar-collapsed',
+              sidebarMobileExpandedClass = 'sidebar-mobile-expanded';
+
+        // On desktop
+        sidebarMainDesktopToggler.on('click', function(e) {
             e.preventDefault();
-            $('body').toggleClass('sidebar-main-hidden');
-        });
+            sidebarMainElement.toggleClass(sidebarCollapsedClass);
+        });                
+
+        // On mobile
+        sidebarMainMobileToggler.on('click', function(e) {
+            e.preventDefault();
+            sidebarMainElement.toggleClass(sidebarMobileExpandedClass);
+            sidebarMainRestElements.removeClass(sidebarMobileExpandedClass);
+        });                
     };
 
     // Toggle secondary sidebar
-    var _sidebarSecondaryToggle = function() {
-        $(document).on('click', '.sidebar-secondary-toggle', function (e) {
+    const sidebarSecondaryToggle = function() {
+
+        // Elements
+        const sidebarSecondaryElement = $('.sidebar-secondary'),
+              sidebarSecondaryRestElements = $('.sidebar:not(.sidebar-secondary):not(.sidebar-component)'),
+              sidebarSecondaryDesktopToggler = $('.sidebar-secondary-toggle'),
+              sidebarSecondaryMobileToggler = $('.sidebar-mobile-secondary-toggle'),
+              sidebarCollapsedClass = 'sidebar-collapsed',
+              sidebarMobileExpandedClass = 'sidebar-mobile-expanded';
+
+        // On desktop
+        sidebarSecondaryDesktopToggler.on('click', function(e) {
             e.preventDefault();
-            $('body').toggleClass('sidebar-secondary-hidden');
+            sidebarSecondaryElement.toggleClass(sidebarCollapsedClass);
         });
-    };
 
-
-    // Show right, resize main
-    var _sidebarRightMainToggle = function() {
-        $(document).on('click', '.sidebar-right-main-toggle', function (e) {
+        // On mobile
+        sidebarSecondaryMobileToggler.on('click', function(e) {
             e.preventDefault();
-
-            // Right sidebar visibility
-            $('body').toggleClass('sidebar-right-visible');
-
-            // If visible
-            if ($('body').hasClass('sidebar-right-visible')) {
-
-                // Make main sidebar mini
-                $('body').addClass('sidebar-xs');
-
-                // Hide children lists if they are opened, since sliding animation adds inline CSS
-                $('.sidebar-main .nav-sidebar').children('.nav-item').children('.nav-group-sub').css('display', '');
-            }
-            else {
-                $('body').removeClass('sidebar-xs');
-            }
-        });
-    };
-
-    // Show right, hide main
-    var _sidebarRightMainHide = function() {
-        $(document).on('click', '.sidebar-right-main-hide', function (e) {
-            e.preventDefault();
-
-            // Opposite sidebar visibility
-            $('body').toggleClass('sidebar-right-visible');
-            
-            // If visible
-            if ($('body').hasClass('sidebar-right-visible')) {
-                $('body').addClass('sidebar-main-hidden');
-            }
-            else {
-                $('body').removeClass('sidebar-main-hidden');
-            }
+            sidebarSecondaryElement.toggleClass(sidebarMobileExpandedClass);
+            sidebarSecondaryRestElements.removeClass(sidebarMobileExpandedClass);
         });
     };
 
     // Toggle right sidebar
-    var _sidebarRightToggle = function() {
-        $(document).on('click', '.sidebar-right-toggle', function (e) {
+    const sidebarRightToggle = function() {
+
+        // Elements
+        const sidebarRightElement = $('.sidebar-right'),
+              sidebarRightRestElements = $('.sidebar:not(.sidebar-right):not(.sidebar-component)'),
+              sidebarRightDesktopToggler = $('.sidebar-right-toggle'),
+              sidebarRightMobileToggler = $('.sidebar-mobile-right-toggle'),
+              sidebarCollapsedClass = 'sidebar-collapsed',
+              sidebarMobileExpandedClass = 'sidebar-mobile-expanded';
+
+        // On desktop
+        sidebarRightDesktopToggler.on('click', function(e) {
             e.preventDefault();
-
-            $('body').toggleClass('sidebar-right-visible');
+            sidebarRightElement.toggleClass(sidebarCollapsedClass);
         });
-    };
 
-    // Show right, hide secondary
-    var _sidebarRightSecondaryToggle = function() {
-        $(document).on('click', '.sidebar-right-secondary-toggle', function (e) {
+        // On mobile
+        sidebarRightMobileToggler.on('click', function(e) {
             e.preventDefault();
-
-            // Opposite sidebar visibility
-            $('body').toggleClass('sidebar-right-visible');
-
-            // If visible
-            if ($('body').hasClass('sidebar-right-visible')) {
-                $('body').addClass('sidebar-secondary-hidden');
-            }
-            else {
-                $('body').removeClass('sidebar-secondary-hidden');
-            }
-        });
-    };
-
-
-    // Toggle content sidebar
-    var _sidebarComponentToggle = function() {
-        $(document).on('click', '.sidebar-component-toggle', function (e) {
-            e.preventDefault();
-            $('body').toggleClass('sidebar-component-hidden');
-        });
-    };
-
-
-    //
-    // On mobile
-    //
-
-    // Expand sidebar to full screen on mobile
-    var _sidebarMobileFullscreen = function() {
-        $('.sidebar-mobile-expand').on('click', function (e) {
-            e.preventDefault();
-            var $sidebar = $(this).parents('.sidebar'),
-                sidebarFullscreenClass = 'sidebar-fullscreen'
-
-            if(!$sidebar.hasClass(sidebarFullscreenClass)) {
-                $sidebar.addClass(sidebarFullscreenClass);
-            }
-            else {
-                $sidebar.removeClass(sidebarFullscreenClass);
-            }
-        });
-    };
-
-    // Toggle main sidebar on mobile
-    var _sidebarMobileMainToggle = function() {
-        $('.sidebar-mobile-main-toggle').on('click', function(e) {
-            e.preventDefault();
-            $('body').toggleClass('sidebar-mobile-main').removeClass('sidebar-mobile-secondary sidebar-mobile-right');
-
-            if($('.sidebar-main').hasClass('sidebar-fullscreen')) {
-                $('.sidebar-main').removeClass('sidebar-fullscreen');
-            }
-        });
-    };
-
-    // Toggle secondary sidebar on mobile
-    var _sidebarMobileSecondaryToggle = function() {
-        $('.sidebar-mobile-secondary-toggle').on('click', function (e) {
-            e.preventDefault();
-            $('body').toggleClass('sidebar-mobile-secondary').removeClass('sidebar-mobile-main sidebar-mobile-right');
-
-            // Fullscreen mode
-            if($('.sidebar-secondary').hasClass('sidebar-fullscreen')) {
-                $('.sidebar-secondary').removeClass('sidebar-fullscreen');
-            }
-        });
-    };
-
-    // Toggle right sidebar on mobile
-    var _sidebarMobileRightToggle = function() {
-        $('.sidebar-mobile-right-toggle').on('click', function (e) {
-            e.preventDefault();
-            $('body').toggleClass('sidebar-mobile-right').removeClass('sidebar-mobile-main sidebar-mobile-secondary');
-
-            // Hide sidebar if in fullscreen mode on mobile
-            if($('.sidebar-right').hasClass('sidebar-fullscreen')) {
-                $('.sidebar-right').removeClass('sidebar-fullscreen');
-            }
-        });
-    };
-
-    // Toggle component sidebar on mobile
-    var _sidebarMobileComponentToggle = function() {
-        $('.sidebar-mobile-component-toggle').on('click', function (e) {
-            e.preventDefault();
-            $('body').toggleClass('sidebar-mobile-component');
-        });
+            sidebarRightElement.toggleClass(sidebarMobileExpandedClass);
+            sidebarRightRestElements.removeClass(sidebarMobileExpandedClass);
+        });                
     };
 
 
@@ -243,7 +188,7 @@ var App = function () {
     // -------------------------
 
     // Sidebar navigation
-    var _navigationSidebar = function() {
+    const navigationSidebar = function() {
 
         // Define default class names and options
         var navClass = 'nav-sidebar',
@@ -251,16 +196,18 @@ var App = function () {
             navItemOpenClass = 'nav-item-open',
             navLinkClass = 'nav-link',
             navSubmenuClass = 'nav-group-sub',
+            navSubmenuExpandedClass = 'nav-group-sub-visible',
+            navScrollSpyClass = 'nav-scrollspy',
             navSlidingSpeed = 250;
 
         // Configure collapsible functionality
-        $('.' + navClass).each(function() {
+        $('.' + navClass + ':not(.' + navScrollSpyClass + ')').each(function() {
             $(this).find('.' + navItemClass).has('.' + navSubmenuClass).children('.' + navItemClass + ' > ' + '.' + navLinkClass).not('.disabled').on('click', function (e) {
                 e.preventDefault();
 
                 // Simplify stuff
-                var $target = $(this),
-                    $navSidebarMini = $('.sidebar-xs').not('.sidebar-mobile-main').find('.sidebar-main .' + navClass).children('.' + navItemClass);
+                var $target = $(this);
+                var $navSidebarMini = $('.sidebar-main-resized:not(.sidebar-mobile-expanded)').find('.' + navClass).children('.' + navItemClass);
 
                 // Collapsible
                 if($target.parent('.' + navItemClass).hasClass(navItemOpenClass)) {
@@ -281,13 +228,10 @@ var App = function () {
         $(document).on('click', '.' + navClass + ' .disabled', function(e) {
             e.preventDefault();
         });
-
-        // Scrollspy navigation
-        $('.nav-scrollspy').find('.' + navItemClass).has('.' + navSubmenuClass).children('.' + navItemClass + ' > ' + '.' + navLinkClass).off('click');
     };
 
     // Navbar navigation
-    var _navigationNavbar = function() {
+    const navigationNavbar = function() {
 
         // Prevent dropdown from closing on click
         $(document).on('click', '.dropdown-content', function(e) {
@@ -301,7 +245,7 @@ var App = function () {
         });
 
         // Show tabs inside dropdowns
-        $('.dropdown-content a[data-toggle="tab"]').on('click', function(e) {
+        $('.dropdown-content a[data-toggle="tab"]').on('click', function() {
             $(this).tab('show');
         });
     };
@@ -311,24 +255,50 @@ var App = function () {
     // -------------------------
 
     // Tooltip
-    var _componentTooltip = function() {
-
-        // Initialize
+    const componentTooltip = function() {
         $('[data-popup="tooltip"]').tooltip();
-
-        // Demo tooltips, remove in production
-        var demoTooltipSelector = '[data-popup="tooltip-demo"]';
-        if($(demoTooltipSelector).is(':visible')) {
-            $(demoTooltipSelector).tooltip('show');
-            setTimeout(function() {
-                $(demoTooltipSelector).tooltip('hide');
-            }, 2000);
-        }
     };
 
     // Popover
-    var _componentPopover = function() {
+    const componentPopover = function() {
         $('[data-popup="popover"]').popover();
+    };
+
+    // "Go to top" button
+    const componentToTopButton = function() {
+
+        // Elements
+        const toTopContainer = $('body'),
+              scrollableContainer = $(window),
+              scrollableDistance = 250;
+
+
+        // Create button
+        toTopContainer.append($('<div class="btn-to-top"><button type="button" class="btn btn-dark btn-icon rounded-pill"><i class="icon-arrow-up8"></i></button></div>'));
+
+        // Show and hide on scroll
+        const to_top_button = $('.btn-to-top'),
+              add_class_on_scroll = function() {
+                to_top_button.addClass('btn-to-top-visible');
+              },
+              remove_class_on_scroll = function() {
+                to_top_button.removeClass('btn-to-top-visible');
+              };
+
+        scrollableContainer.on('scroll', function() { 
+            const scrollpos = scrollableContainer.scrollTop();
+            if (scrollpos >= scrollableDistance) {
+                add_class_on_scroll();
+            }
+            else {
+                remove_class_on_scroll();
+            }
+        });
+
+        // Scroll to top on click
+        $('.btn-to-top .btn').on('click', function() {
+            scrollableContainer.scrollTop(0);
+        });
     };
 
 
@@ -336,107 +306,110 @@ var App = function () {
     // -------------------------
 
     // Reload card (uses BlockUI extension)
-    var _cardActionReload = function() {
-        $('.card [data-action=reload]:not(.disabled)').on('click', function (e) {
-            e.preventDefault();
-            var $target = $(this),
-                block = $target.closest('.card');
-            
-            // Block card
-            $(block).block({ 
-                message: '<i class="icon-spinner2 spinner"></i>',
-                overlayCSS: {
-                    backgroundColor: '#fff',
-                    opacity: 0.8,
-                    cursor: 'wait',
-                    'box-shadow': '0 0 0 1px #ddd'
-                },
-                css: {
-                    border: 0,
-                    padding: 0,
-                    backgroundColor: 'none'
-                }
-            });
+    const cardActionReload = function() {
 
-            // For demo purposes
-            window.setTimeout(function () {
-               $(block).unblock();
-            }, 2000); 
+        // Elements
+        const buttonElement = $('[data-action=reload]'),
+              overlayContainer = '.card',
+              overlayClass = 'card-overlay',
+              spinnerClass = 'icon-spinner9 spinner text-body',
+              overlayAnimationClass = 'card-overlay-fadeout';
+
+
+        // Configure
+        buttonElement.on('click', function(e) {
+            e.preventDefault();
+
+            // Create overlay with spinner
+            $(this).parents(overlayContainer).append($('<div class="' + overlayClass + '"><i class="' + spinnerClass + '"></i></div>'));
+
+            // Remove overlay after 2.5s, for demo only
+            setTimeout(function() {
+                $('.' + overlayClass).addClass(overlayAnimationClass).on('animationend animationcancel', function() {
+                    $(this).remove();
+                });
+            }, 2500);
         });
     };
 
     // Collapse card
-    var _cardActionCollapse = function() {
-        var $cardCollapsedClass = $('.card-collapsed');
+    const cardActionCollapse = function() {
 
-        // Hide if collapsed by default
-        $cardCollapsedClass.children('.card-header').nextAll().hide();
+        // Elements
+        const buttonElement = $('[data-action=collapse]'),
+              cardContainer = '.card',
+              cardCollapsedClass = 'card-collapsed';
 
-        // Rotate icon if collapsed by default
-        $cardCollapsedClass.find('[data-action=collapse]').addClass('rotate-180');
-
-        // Collapse on click
-        $('.card [data-action=collapse]:not(.disabled)').on('click', function (e) {
-            var $target = $(this),
-                slidingSpeed = 150;
-
+        // Configure
+        buttonElement.on('click', function(e) {
             e.preventDefault();
-            $target.parents('.card').toggleClass('card-collapsed');
-            $target.toggleClass('rotate-180');
-            $target.closest('.card').children('.card-header').nextAll().slideToggle(slidingSpeed);
+
+            const parentContainer = $(this).parents('.card'),
+                  collapsibleContainer = parentContainer.find('> .collapse');
+
+            if (parentContainer.hasClass(cardCollapsedClass)) {
+                parentContainer.removeClass(cardCollapsedClass);
+                collapsibleContainer.collapse('show');
+            }
+            else {
+                parentContainer.addClass(cardCollapsedClass);
+                collapsibleContainer.collapse('hide');
+            }
         });
     };
 
     // Remove card
-    var _cardActionRemove = function() {
-        $('.card [data-action=remove]').on('click', function (e) {
-            e.preventDefault();
-            var $target = $(this),
-                slidingSpeed = 150;
+    const cardActionRemove = function() {
 
-            // If not disabled
-            if(!$target.hasClass('disabled')) {
-                $target.closest('.card').slideUp({
-                    duration: slidingSpeed,
-                    start: function() {
-                        $target.addClass('d-block');
-                    },
-                    complete: function() {
-                        $target.remove();
-                    }
-                });
-            }
+        // Elements
+        const buttonElement = $('[data-action=remove]'),
+              cardContainer = '.card';
+
+        // Configure
+        buttonElement.on('click', function(e) {
+            e.preventDefault();
+            $(this).parents(cardContainer).slideUp(150);
         });
     };
 
     // Card fullscreen mode
-    var _cardActionFullscreen = function() {
-        $('.card [data-action=fullscreen]').on('click', function (e) {
+    const cardActionFullscreen = function() {
+
+        // Elements
+        const buttonElement = '[data-action=fullscreen]',
+              buttonClass = 'list-icons-item',
+              buttonContainerClass = 'list-icons',
+              cardFullscreenClass = 'card-fullscreen',
+              collapsedClass = 'collapsed-in-fullscreen',
+              scrollableContainer = 'body',
+              fullscreenAttr = 'data-fullscreen';
+
+        // Configure
+        $(buttonElement).on('click', function(e) {
             e.preventDefault();
+            const button = $(this);
 
-            // Define vars
-            var $target = $(this),
-                cardFullscreen = $target.closest('.card'),
-                overflowHiddenClass = 'overflow-hidden',
-                collapsedClass = 'collapsed-in-fullscreen',
-                fullscreenAttr = 'data-fullscreen';
+            // Get closest card container
+            const cardFullscreen = button.parents('.card');
 
-            // Toggle classes on card
-            cardFullscreen.toggleClass('fixed-top h-100 rounded-0');
+            // Toggle required classes
+            cardFullscreen.toggleClass(cardFullscreenClass);
 
-            // Configure
-            if (!cardFullscreen.hasClass('fixed-top')) {
-                $target.removeAttr(fullscreenAttr);
-                cardFullscreen.children('.' + collapsedClass).removeClass('show');
-                $('body').removeClass(overflowHiddenClass);
-                $target.siblings('[data-action=move], [data-action=remove], [data-action=collapse]').removeClass('d-none');
+            // Toggle classes depending on state
+            if (!cardFullscreen.hasClass(cardFullscreenClass)) {
+                button.removeAttr(fullscreenAttr);
+                cardFullscreen.find('.' + collapsedClass).removeClass('show');
+                $(scrollableContainer).removeClass('overflow-hidden');
+                button.parents('.' + buttonContainerClass).find('.' + buttonClass + ':not(' + buttonElement + ')').removeClass('d-none');
             }
             else {
-                $target.attr(fullscreenAttr, 'active');
-                cardFullscreen.removeAttr('style').children('.collapse:not(.show)').addClass('show ' + collapsedClass);
-                $('body').addClass(overflowHiddenClass);
-                $target.siblings('[data-action=move], [data-action=remove], [data-action=collapse]').addClass('d-none');
+                button.attr(fullscreenAttr, 'active');
+                cardFullscreen.removeAttr('style');
+                cardFullscreen.find('.collapse:not(.show)').addClass('show ' + collapsedClass);
+                $(scrollableContainer).addClass('overflow-hidden');
+                button.parents('.' + buttonContainerClass).find('.' + buttonClass + ':not(' + buttonElement + ')').addClass('d-none');
             }
+
         });
     };
 
@@ -445,33 +418,35 @@ var App = function () {
     // -------------------------
 
     // Dropdown submenus. Trigger on click
-    var _dropdownSubmenu = function() {
+    const dropdownSubmenu = function() {
 
         // All parent levels require .dropdown-toggle class
         $('.dropdown-menu').find('.dropdown-submenu').not('.disabled').find('.dropdown-toggle').on('click', function(e) {
             e.stopPropagation();
             e.preventDefault();
 
+            const button = $(this);
+
             // Remove "show" class in all siblings
-            $(this).parent().siblings().removeClass('show').find('.show').removeClass('show');
+            button.parent().siblings().removeClass('show').find('.show').removeClass('show');
 
             // Toggle submenu
-            $(this).parent().toggleClass('show').children('.dropdown-menu').toggleClass('show');
+            button.parent().toggleClass('show').children('.dropdown-menu').toggleClass('show');
 
             // Hide all levels when parent dropdown is closed
-            $(this).parents('.show').on('hidden.bs.dropdown', function(e) {
+            button.parents('.show').on('hidden.bs.dropdown', function(e) {
                 $('.dropdown-submenu .show, .dropdown-submenu.show').removeClass('show');
             });
         });
     };
 
     // Header elements toggler
-    var _headerElements = function() {
+    const componentHeaderElements = function() {
 
         // Toggle visible state of header elements
         $('.header-elements-toggle').on('click', function(e) {
             e.preventDefault();
-            $(this).parents('[class*=header-elements-]').find('.header-elements').toggleClass('d-none');
+            $(this).parents('[class*=header-elements-]:not(.header-elements-toggle)').find('.header-elements').toggleClass('d-none');
         });
 
         // Toggle visible state of footer elements
@@ -490,72 +465,57 @@ var App = function () {
 
         // Disable transitions before page is fully loaded
         initBeforeLoad: function() {
-            _transitionsDisabled();
+            detectOS();
+            transitionsDisabled();
         },
 
         // Enable transitions when page is fully loaded
         initAfterLoad: function() {
-            _transitionsEnabled();
+            transitionsEnabled();
+        },
+        // Initialize all components
+        initComponents: function() {
+            componentTooltip();
+            componentPopover();
+            componentToTopButton();
+            componentHeaderElements();
         },
 
         // Initialize all sidebars
         initSidebars: function() {
-
-            // On desktop
-            _sidebarMainResize();
-            _sidebarMainToggle();
-            _sidebarSecondaryToggle();
-            _sidebarRightMainToggle();
-            _sidebarRightMainHide();
-            _sidebarRightToggle();
-            _sidebarRightSecondaryToggle();
-            _sidebarComponentToggle();
-
-            // On mobile
-            _sidebarMobileFullscreen();
-            _sidebarMobileMainToggle();
-            _sidebarMobileSecondaryToggle();
-            _sidebarMobileRightToggle();
-            _sidebarMobileComponentToggle();
+            sidebarMainResize();
+            sidebarMainToggle();
+            sidebarSecondaryToggle();
+            sidebarRightToggle();
         },
 
         // Initialize all navigations
         initNavigations: function() {
-            _navigationSidebar();
-            _navigationNavbar();
-        },
-
-        // Initialize all components
-        initComponents: function() {
-            //_componentTooltip();
-            //_componentPopover();
+            navigationSidebar();
+            navigationNavbar();
         },
 
         // Initialize all card actions
         initCardActions: function() {
-            _cardActionReload();
-            _cardActionCollapse();
-            _cardActionRemove();
-            _cardActionFullscreen();
+            cardActionReload();
+            cardActionCollapse();
+            cardActionRemove();
+            cardActionFullscreen();
         },
 
         // Dropdown submenu
-        initDropdownSubmenu: function() {
-            _dropdownSubmenu();
-        },
-
-        initHeaderElementsToggle: function() {
-            _headerElements();
+        initDropdowns: function() {
+            dropdownSubmenu();
         },
 
         // Initialize core
-        initCore: function() {
+        initcore: function() {
+            App.initBeforeLoad();
             App.initSidebars();
             App.initNavigations();
             App.initComponents();
             App.initCardActions();
-            App.initDropdownSubmenu();
-            App.initHeaderElementsToggle();
+            App.initDropdowns();
         }
     }
 }();
@@ -566,8 +526,7 @@ var App = function () {
 
 // When content is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    App.initBeforeLoad();
-    App.initCore();
+    App.initcore();
 });
 
 // When page is fully loaded

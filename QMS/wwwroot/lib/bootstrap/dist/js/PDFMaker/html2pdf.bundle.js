@@ -95,7 +95,7 @@ O=$.API).processBMP=function(t,e,n,r,i){var o=new xt(t,!1),a=o.width,s=o.height,
 /** 
     Resources:
     Font metrics data is reprocessed derivative of contents of
-    "Font Metrics for PDF Core 14 Fonts" package, which exhibits the following copyright and license:
+    "Font Metrics for PDF core 14 Fonts" package, which exhibits the following copyright and license:
     
     Copyright (c) 1989, 1990, 1991, 1992, 1993, 1997 Adobe Systems Incorporated. All Rights Reserved.
     
@@ -8963,7 +8963,7 @@ Worker.prototype.then = function then(onFulfilled, onRejected) {
   // Wrap `this` for encapsulation.
   var self = this;
 
-  return this.thenCore(onFulfilled, onRejected, function then_main(onFulfilled, onRejected) {
+  return this.thencore(onFulfilled, onRejected, function then_main(onFulfilled, onRejected) {
     // Update progress while queuing, calling, and resolving `then`.
     self.updateProgress(null, null, 1, [onFulfilled]);
     return Promise$1.prototype.then.call(this, function then_pre(val) {
@@ -8976,7 +8976,7 @@ Worker.prototype.then = function then(onFulfilled, onRejected) {
   });
 };
 
-Worker.prototype.thenCore = function thenCore(onFulfilled, onRejected, thenBase) {
+Worker.prototype.thencore = function thencore(onFulfilled, onRejected, thenBase) {
   // Handle optional thenBase parameter.
   thenBase = thenBase || Promise$1.prototype.then;
 
@@ -9007,7 +9007,7 @@ Worker.prototype.thenList = function thenList(fns) {
   // Queue a series of promise 'factories' into the promise chain.
   var self = this;
   fns.forEach(function thenList_forEach(fn) {
-    self = self.thenCore(fn);
+    self = self.thencore(fn);
   });
   return self;
 };

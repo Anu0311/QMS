@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Models\AuditScoreMaster.cs" />
+    <Compile Remove="Models\CertificateMaster.cs" />
+    <Compile Remove="Models\PDIMaster.cs" />
+    <Compile Remove="Models\ProductMaster.cs" />
+    <Compile Remove="Models\ThirdPartyTestReports.cs" />
+    <Compile Remove="Models\UserDetail.cs" />
+    <Compile Remove="Models\VendorContactMaster.cs" />
+    <Compile Remove="Models\VendorDesignation.cs" />
+    <Compile Remove="Models\VendorMaster.cs" />
+    <Compile Remove="Models\VendorType.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+    <PackageReference Include="Microsoft.AspNetcore.Hosting.Abstractions" Version="2.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkcore" Version="9.0.4" />
+  </ItemGroup>
+
+</Project>
