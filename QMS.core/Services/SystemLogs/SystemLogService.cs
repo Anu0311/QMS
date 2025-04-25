@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetcore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 
 namespace QMS.core.Services.SystemLogs;
 

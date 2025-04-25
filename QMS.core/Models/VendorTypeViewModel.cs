@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using QMS.core.DatabaseContext;
 namespace QMS.core.Models
+
 {
 
     public class VendorTypeViewModel

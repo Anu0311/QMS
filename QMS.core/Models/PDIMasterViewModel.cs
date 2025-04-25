@@ -1,5 +1,6 @@
 ﻿using QMS.core.Models;
 using System;
+using QMS.core.DatabaseContext;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 namespace QMS.core.Models

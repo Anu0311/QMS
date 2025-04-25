@@ -1,21 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace QMS.core.DatabaseContext
+namespace QMS.core.Models
 {
-    [Table("tbl_VendorMaster")]
-    public class Vendor
+    public class VendorMasterViewModel
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int VendorID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Vendor name is required")]
         [StringLength(200)]
         public string VendorName { get; set; }
 
@@ -23,10 +15,11 @@ namespace QMS.core.DatabaseContext
         public string? Address { get; set; }
 
         [StringLength(100)]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
         public string? Email { get; set; }
 
         [StringLength(15)]
+        [Phone(ErrorMessage = "Invalid phone number")]
         public string? MobileNumber { get; set; }
 
         [StringLength(20)]

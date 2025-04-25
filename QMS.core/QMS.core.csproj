@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DatabaseContext\SPMScores.cs" />
     <Compile Remove="Models\AuditScoreMaster.cs" />
     <Compile Remove="Models\CertificateMaster.cs" />
     <Compile Remove="Models\PDIMaster.cs" />

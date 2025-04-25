@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using QMS.core.DatabaseContext;
 
-namespace QMS.core.Data
+namespace QMS.core.DatabaseContext
 {
     public class QMSDbContext : DbContext
     {
@@ -11,16 +11,16 @@ namespace QMS.core.Data
         public DbSet<PDIMaster> PDIMasters { get; set; }
         public DbSet<ProductMaster> ProductMasters { get; set; }
         public DbSet<SPMParameterMaster> SPMParameterMasters { get; set; }
-        public DbSet<SPMScores> SPMScores { get; set; }
+        //public DbSet<SPMScores> SPMScores { get; set; }
         public DbSet<ThirdPartyTestReports> ThirdPartyTestReports { get; set; }
         public DbSet<VendorType> Types { get; set; }
         public DbSet<UserDetail> UserDetails { get; set; }
         public DbSet<VendorContactMaster> VendorContactMasters { get; set; }
         public DbSet<VendorDesignation> VendorDesignations { get; set; }
-        public DbSet<Vendor> Vendors { get; set; }
+        public DbSet<VendorMaster> VendorMasters { get; set; }
 
         public QMSDbContext(DbContextOptions<QMSDbContext> options)
-        : base(options)
+            : base(options)
         {
         }
     }

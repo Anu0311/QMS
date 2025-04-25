@@ -7,5 +7,6 @@ public class OperationResult
     public string? Message { get; set; }
     public Exception? Exception { get; set; }
     public object? Payload { get; set; }
+    public object? Data { get; set; }
     public bool Deleted { get; set; }
 }

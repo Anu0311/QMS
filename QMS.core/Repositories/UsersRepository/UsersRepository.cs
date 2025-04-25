@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using QMS.core.Repositories.Shared;
 using QMS.core.Services.SystemLogs;
 using QMS.core.Repositories.UsersRepository;
-using QMS.core.Data;
 
-public class UsersRepository : SqlTableRepository,IUsersRepository
+
+public class UsersRepository : SqlTableRepository, IUsersRepository
 {
     private readonly QMSDbContext _context;
 
-    public UsersRepository(QMSDbContext context)
+    public UsersRepository(QMSDbContext context) : base(context)
     {
         _context = context;
     }
@@ -40,7 +40,7 @@ public class UsersRepository : SqlTableRepository,IUsersRepository
 
     public async Task<OperationResult> CreateUserAsync(UserDetailViewModel userViewModel, bool returnCreatedRecord = false)
     {
-        var user = new User
+        var user = new UserDetail
         {
             Name = userViewModel.Name,
             Email = userViewModel.Email,
@@ -81,7 +81,7 @@ public class UsersRepository : SqlTableRepository,IUsersRepository
 
     public async Task<OperationResult> DeleteUserAsync(int userId)
     {
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _context.UserDetails.FindAsync(userId);
         if (user == null)
             return new OperationResult { Success = false, Message = "User not found." };
 
@@ -91,26 +91,16 @@ public class UsersRepository : SqlTableRepository,IUsersRepository
         return new OperationResult { Success = true };
     }
 
-    public async Task<UserViewModel?> GetUserByIdAsync(int userId)
+    public async Task<UserDetailViewModel?> GetUserByIdAsync(int userId)
     {
-        return await _context.Users
+        return await _context.UserDetails
             .Where(u => u.Id == userId && !u.Deleted)
-            .Select(u => new UserViewModel
+            .Select(u => new UserDetailViewModel
             {
                 UserId = u.Id,
                 Name = u.Name,
                 Email = u.Email,
                 Username = u.Username
             }).FirstOrDefaultAsync();
-    }
-
-    public Task<OperationResult> UpdateUserAsync(UserDetailViewModel userViewModel, bool returnUpdatedRecord = false)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<UserDetailViewModel?> IUsersRepository.GetUserByIdAsync(int userId)
-    {
-        throw new NotImplementedException();
     }
 }

@@ -7,9 +7,9 @@ namespace QMS.core.Repositories.Shared;
 
 public class SqlTableRepository : ISqlTableRepository
 {
-    public readonly PPSDbContext _dbContext;
+    public readonly QMSDbContext _dbContext;
 
-    public SqlTableRepository(PPSDbContext dbContext)
+    public SqlTableRepository(QMSDbContext dbContext)
     {
         _dbContext = dbContext;
     }
